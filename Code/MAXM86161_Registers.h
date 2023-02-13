@@ -41,6 +41,39 @@
 #define MAXM86161_REG_FIFO_DATA_COUNTER          0x07
 #define MAXM86161_REG_FIFO_DATA                  0x08  
 
+//register ppg configuration
+#define MAXM86161_REG_PPG_CONFIG1               0x11
+#define MAXM86161_REG_PPG_CONFIG2               0x12
+#define MAXM86161_REG_PPG_CONFIG3               0x13
+
+//left bit shift ppg config1
+#define MAXM86161_PPG_CFG_ALC                           7
+#define MAXM86161_PPG_CFG_OFFSET                        6
+#define MAXM86161_PPG_CFG_ADC_RANGE                     2
+#define MAXM86161_PPG_CFG_TINT                          0
+//left bit shift ppg config2
+#define MAXM86161_PPG_CFG_SMP_RATE                      3
+#define MAXM86161_PPG_CFG_SMP_AVG                       0
 
 
 
+// ******************PARAMETERS SETUP*************
+//configuration PPG
+//CONFIGURATION 1
+//ALC(bit 7)
+#define MAXM86161_PPG_CFG_ALC_EN                        0x01
+#define MAXM86161_PPG_CFG_ALC_DS                        0x00
+//OFFSET(bit 6)
+#define MAXM86161_PPG_CFG_OFFSET_ADD                    0x01
+#define MAXM86161_PPG_CFG_OFFSET_NO                     0x00
+//PPG1_PPG1_ADC_RGE (bit2-3)
+#define MAXM86161_PPG_ADC_RANGE_16                     0x02
+//PPG_TINT (bit1-0) = pulse width
+//I set pulse width to 123,8 ms
+#define MAXM86161_PPG_CFG_TINT_123ms                    0x03
+
+//CONFIGURATION 2
+//sample rate (I set 25sps)
+#define  MAXM86161_PPG_CFG_SMP_RATE_P1_25sps            0x00
+//sample avereage (I set to 1)
+#define MAXM86161_PPG_CFG_SMP_AVG_1                     0x00

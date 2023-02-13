@@ -8,6 +8,7 @@ class MAXM86161{
     public:
         MAXM86161();
         bool begin();
+        void PPG_config();
     
     private:
         void writeRegister(uint8_t address, uint8_t data);
