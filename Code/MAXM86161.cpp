@@ -20,6 +20,28 @@ void MAXM86161::PPG_config(){
 
 }
 
+//LED PA configuration
+void MAXM86161::LED_PA_config(){
+    //initialitazion led_PA config
+    writeRegister( MAXM86161_REG_LED1_PA, MAXM86161_DRV_LED_PA_15mA );
+    writeRegister( MAXM86161_REG_LED2_PA, MAXM86161_DRV_LED_PA_15mA );
+    writeRegister( MAXM86161_REG_LED3_PA, MAXM86161_DRV_LED_PA_15mA );
+}
+
+//LED RANGE configuration
+void MAXM86161::LED_RANGE_config(){
+    writeRegister(MAXM86161_REG_LED_RANGE1,
+                                  ((MAXM86161_LED_RANGE_CURRENT_124_MA << MAXM86161_LED_RANGE_SHIFT_GREEN)
+                                   | (MAXM86161_LED_RANGE_CURRENT_124_MA << MAXM86161_LED_RANGE_SHIFT_IR)
+                                   | (MAXM86161_LED_RANGE_CURRENT_124_MA << MAXM86161_LED_RANGE_SHIFT_RED)));
+
+}
+
+//LED SEQ configuration
+void MAXM86161::LED_SEQ_config(){
+    
+}
+
 //initialization
 bool MAXM86161::begin(){
 
@@ -30,7 +52,15 @@ bool MAXM86161::begin(){
     //sample rate = 25 sps
     PPG_config();
 
-    //led sequence configuration
+    //LED PA configuration
+    //drive current to 15 mA
+    LED_PA_config();
+
+    //LED RANGE configuration
+    //range current of 124 mA
+    LED_RANGE_config();
+
+    //LED SEQ configuration
 
     
 }

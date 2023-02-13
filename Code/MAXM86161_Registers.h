@@ -45,6 +45,10 @@
 #define MAXM86161_REG_PPG_CONFIG1               0x11
 #define MAXM86161_REG_PPG_CONFIG2               0x12
 #define MAXM86161_REG_PPG_CONFIG3               0x13
+#define MAXM86161_REG_PROX_INT_THRESHOLD	    0x14
+#define MAXM86161_REG_PD_BIAS				    0x15
+
+
 
 //left bit shift ppg config1
 #define MAXM86161_PPG_CFG_ALC                           7
@@ -55,7 +59,27 @@
 #define MAXM86161_PPG_CFG_SMP_RATE                      3
 #define MAXM86161_PPG_CFG_SMP_AVG                       0
 
+//LEd sequence control
+#define MAXM86161_REG_LED_SEQ1		0x20
+#define MAXM86161_REG_LED_SEQ2		0x21
+#define MAXM86161_REG_LED_SEQ3		0x22
 
+//LED pulse amplitude
+#define MAXM86161_REG_LED1_PA			  0x23
+#define MAXM86161_REG_LED2_PA			  0x24
+#define MAXM86161_REG_LED3_PA			  0x25
+#define MAXM86161_REG_LED_PILOT_PA	      0x29
+#define MAXM86161_REG_LED_RANGE1		  0x2A
+
+//left bit shift
+#define MAXM86161_LED_RANGE_SHIFT_GREEN                 0
+#define MAXM86161_LED_RANGE_SHIFT_IR                    2
+#define MAXM86161_LED_RANGE_SHIFT_RED                   4
+
+
+
+//Led sequence shift
+#define MAXM86161_LEDSQ_SHIFT                           4
 
 // ******************PARAMETERS SETUP*************
 //configuration PPG
@@ -67,7 +91,7 @@
 #define MAXM86161_PPG_CFG_OFFSET_ADD                    0x01
 #define MAXM86161_PPG_CFG_OFFSET_NO                     0x00
 //PPG1_PPG1_ADC_RGE (bit2-3)
-#define MAXM86161_PPG_ADC_RANGE_16                     0x02
+#define MAXM86161_PPG_ADC_RANGE_16                      0x02
 //PPG_TINT (bit1-0) = pulse width
 //I set pulse width to 123,8 ms
 #define MAXM86161_PPG_CFG_TINT_123ms                    0x03
@@ -77,3 +101,9 @@
 #define  MAXM86161_PPG_CFG_SMP_RATE_P1_25sps            0x00
 //sample avereage (I set to 1)
 #define MAXM86161_PPG_CFG_SMP_AVG_1                     0x00
+
+//********************LED CURRENT*********************
+// I set drive current to 15,36 mA
+#define MAXM86161_DRV_LED_PA_15mA                       0x20
+// I set LED Driver range to 124mA
+#define MAXM86161_LED_RANGE_CURRENT_124_MA              0x03

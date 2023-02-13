@@ -9,6 +9,9 @@ class MAXM86161{
         MAXM86161();
         bool begin();
         void PPG_config();
+        void LED_PA_config();
+        void LED_RANGE_config();
+        void LED_SEQ_config();
     
     private:
         void writeRegister(uint8_t address, uint8_t data);
