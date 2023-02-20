@@ -2,6 +2,8 @@
 #define MAXM86161_H
 
 #include <stdint.h>
+#include <Wire.h>
+#include <windows.h>
 #include "MAXM86161_Registers.h"
 
 class MAXM86161{
@@ -12,6 +14,8 @@ class MAXM86161{
         void LED_PA_config();
         void LED_RANGE_config();
         void LED_SEQ_config();
+        void soft_reset();
+        void FIFO_config();
     
     private:
         void writeRegister(uint8_t address, uint8_t data);

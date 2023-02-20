@@ -4,17 +4,24 @@
 // slave address = 0b11000100 -> 0xC4
 #define MAXM86161_I2C_ADDRESS 0xc4
 
+
+
+/***************************************************************************//**
+ ********    max86161 Register and Parameter Bit Definitions  ******************
+ ******************************************************************************/
+
+
 // Interrupt status register 1
 //<< bitwise left shift operator
 // 1 << 0 is 1 shifted to the left by 0 position
 #define MAXM86161_REG_INTERRUPT_STATUS        0x00
-#define MAXM86161_PWR_RDY                     (1 << 0)
-#define MAXM86161_DIE_TEMP_RDY                (1 << 2)
-#define MAXM86161_LED_COMPB                   (1 << 3)
-#define MAXM86161_PROX_INT                    (1 << 4)
-#define MAXM86161_ALC_OVF                     (1 << 5)
-#define MAXM86161_DATA_RDY                    (1 << 6)
-#define MAXM86161_A_FULL                      (1 << 7)
+#define MAXM86161_PWR_RDY                     0
+#define MAXM86161_DIE_TEMP_RDY                2
+#define MAXM86161_LED_COMPB                   3
+#define MAXM86161_PROX_INT                    4
+#define MAXM86161_ALC_OVF                     5
+#define MAXM86161_DATA_RDY                    6
+#define MAXM86161_A_FULL                      7
 
 // Interrupt status register 2
 #define MAXM86161_REG_INTERRUPT_STATUS        0x01
@@ -22,12 +29,12 @@
 
 // Interrupt enable register 1
 #define MAXM86161_REG_INTERRUPT_ENABLE           0x02
-#define MAXM86161_DIE_TEMP_RDY_EN                (1 << 2)
-#define MAXM86161_LED_COMPB_EN                   (1 << 3)
-#define MAXM86161_PROX_INT_EN                    (1 << 4)
-#define MAXM86161_ALC_OVF_EN                     (1 << 5)
-#define MAXM86161_DATA_RDY_EN                    (1 << 6)
-#define MAXM86161_A_FULL_EN                      (1 << 7)
+#define MAXM86161_DIE_TEMP_RDY_EN                2
+#define MAXM86161_LED_COMPB_EN                   3
+#define MAXM86161_PROX_INT_EN                    4
+#define MAXM86161_ALC_OVF_EN                     5
+#define MAXM86161_DATA_RDY_EN                    6
+#define MAXM86161_A_FULL_EN                      7
 
 // Interrupt enable register 2
 #define MAXM86161_REG_INTERRUPT_ENABLE_2         0x03
@@ -40,6 +47,8 @@
 #define MAXM86161_REG_FIFO_OVERFLOW_COUNTER      0x06
 #define MAXM86161_REG_FIFO_DATA_COUNTER          0x07
 #define MAXM86161_REG_FIFO_DATA                  0x08  
+#define MAXM86161_REG_FIFO_CONFIG1		         0x09
+#define MAXM86161_REG_FIFO_CONFIG2		         0x0A
 
 //register ppg configuration
 #define MAXM86161_REG_PPG_CONFIG1               0x11
@@ -81,8 +90,32 @@
 //Led sequence shift
 #define MAXM86161_LEDSQ_SHIFT                           4
 
+//System
+#define MAXM86161_REG_SYSTEM_CONTROL		0x0D
+
+
+
+
 // ******************PARAMETERS SETUP*************
-//configuration PPG
+
+// ******************INIT***********************
+#define MAXM86161_INT_1_FULL                            0x80
+#define MAXM86161_INT_1_NOT_FULL                        0x00
+#define MAXM86161_INT_1_DATA_RDY                        0x40
+#define MAXM86161_INT_1_DATA_NOT_RDY                    0x00
+#define MAXM86161_INT_1_ALC_OVERFLOW                    0x20
+#define MAXM86161_INT_1_ALC_NORMAL                      0x00
+#define MAXM86161_INT_1_PROXIMITY_INT                   0x10
+#define MAXM86161_INT_1_PROXIMITY_NORMAL                0x00
+#define MAXM86161_INT_1_LED_COMPLIANT                   0x08
+#define MAXM86161_INT_1_LED_NOT_COMPLIANT               0x00
+#define MAXM86161_INT_1_DIE_TEMP_RDY                    0x04
+#define MAXM86161_INT_1_DIE_TEMP_NOT_RDY                0x00
+#define MAXM86161_INT_1_PWR_RDY                         0x01
+#define MAXM86161_INT_1_PWR_NOT_RDY                     0x00
+
+
+// ******************CONFIGURATION PPG*************
 //CONFIGURATION 1
 //ALC(bit 7)
 #define MAXM86161_PPG_CFG_ALC_EN                        0x01
@@ -107,3 +140,25 @@
 #define MAXM86161_DRV_LED_PA_15mA                       0x20
 // I set LED Driver range to 124mA
 #define MAXM86161_LED_RANGE_CURRENT_124_MA              0x03
+
+//********************LED SEQUENCE*********************
+#define MAXM86161_LEDSQ_OFF                             0x0
+#define MAXM86161_LEDSQ_GREEN                           0x1
+#define MAXM86161_LEDSQ_IR                              0x2
+#define MAXM86161_LEDSQ_RED                             0x3
+#define MAXM86161_LEDSQ_PILOT_LED1                      0x8
+#define MAXM86161_LEDSQ_DIRECT_AMBIENT                  0x9
+
+
+//********************FIFO*********************
+#define MAXM86161_FIFO_CFG_2_FLUSH_FIFO                 0x10
+#define MAXM86161_FIFO_CFG_2_FIFO_READ_DATA_CLR         0x08
+#define MAXM86161_FIFO_CFG_2_FIFO_STAT_DATA_CLR         0x00
+#define MAXM86161_FIFO_CFG_2_FULL_TYPE_RPT              0x00
+#define MAXM86161_FIFO_CFG_2_FULL_TYPE_ONCE             0x04
+#define MAXM86161_FIFO_CFG_2_FIFO_ROLL_OVER             0x02
+#define MAXM86161_FIFO_CFG_2_FIFO_STOP                  0x00
+
+//********************SOFT RESET*********************
+#define MAXM86161_SYS_CTRL_SW_RESET                     0x01
+#define MAXM86161_SYS_CTRL_SHUT_DOWN                    0x02

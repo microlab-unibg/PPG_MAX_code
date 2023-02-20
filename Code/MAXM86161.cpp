@@ -1,5 +1,6 @@
 #include "MAXM86161.h"
 #include <Wire.h>
+#include <windows.h>
 
 //constructor
 MAXM86161::MAXM86161(){}
@@ -39,11 +40,50 @@ void MAXM86161::LED_RANGE_config(){
 
 //LED SEQ configuration
 void MAXM86161::LED_SEQ_config(){
+    writeRegister(MAXM86161_REG_LED_SEQ1,
+                                  (( MAXM86161_LEDSQ_RED<< MAXM86161_LEDSQ_SHIFT) | (MAXM86161_LEDSQ_IR )));
+
+    writeRegister(MAXM86161_REG_LED_SEQ2,
+                                  ((MAXM86161_LEDSQ_OFF << MAXM86161_LEDSQ_SHIFT) | (MAXM86161_LEDSQ_DIRECT_AMBIENT )));
+
+    writeRegister(MAXM86161_REG_LED_SEQ3,
+                                  ((MAXM86161_LEDSQ_OFF << MAXM86161_LEDSQ_SHIFT) | (MAXM86161_LEDSQ_OFF)));
     
 }
 
+//reset of software
+void MAXM86161::soft_reset(){
+    writeRegister(MAXM86161_REG_SYSTEM_CONTROL, MAXM86161_SYS_CTRL_SW_RESET);
+
+}
+
+//fifo configuration
+void MAXM86161::FIFO_config(){
+
+    //FIFO INT triggered condition
+    uint8_t value = 15;
+    writeRegister(MAXM86161_REG_FIFO_CONFIG1, value);
+
+    //FIFO Roll Over enabled
+    writeRegister(MAXM86161_REG_FIFO_CONFIG2,
+                                  (MAXM86161_FIFO_CFG_2_FULL_TYPE_RPT
+                                  | MAXM86161_FIFO_CFG_2_FIFO_READ_DATA_CLR | MAXM86161_FIFO_CFG_2_FIFO_ROLL_OVER ));
+
+    //FIFO_A_FULL interrupt enabled
+
+
+
+}
+
+
 //initialization
 bool MAXM86161::begin(){
+
+    //software reset
+    soft_reset();
+    
+    //1ms delay
+    Sleep(1);
 
     //ppg configuration
     //pulse width = 123.8 ms
@@ -60,7 +100,18 @@ bool MAXM86161::begin(){
     //range current of 124 mA
     LED_RANGE_config();
 
+    //FIFO configuration
+    FIFO_config();
+
     //LED SEQ configuration
+    //LEDC1= 0x2 LED2 exposure
+    //LEDC2= 0x3 LED3 exposure
+    //LEDC3= 0x9 DIRECT AMBIENT exposure
+    //LEDC4=0X0 NONE
+    //LEDC5=0X0 NONE
+    //LEDC6=0X0 NONE
+    LED_SEQ_config();
+
 
     
 }
