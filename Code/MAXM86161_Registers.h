@@ -24,7 +24,7 @@
 #define MAXM86161_A_FULL                      7
 
 // Interrupt status register 2
-#define MAXM86161_REG_INTERRUPT_STATUS        0x01
+#define MAXM86161_REG_INTERRUPT_STATUS_2        0x01
 #define MAXM86161_SHA_DONE                    (1 << 0)
 
 // Interrupt enable register 1
