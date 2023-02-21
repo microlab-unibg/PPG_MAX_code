@@ -3,7 +3,6 @@
 
 #include <stdint.h>
 #include <Wire.h>
-#include <windows.h>
 #include "MAXM86161_Registers.h"
 
 class MAXM86161{

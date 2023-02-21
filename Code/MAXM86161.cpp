@@ -1,6 +1,6 @@
 #include "MAXM86161.h"
 #include <Wire.h>
-#include <windows.h>
+
 
 //constructor
 MAXM86161::MAXM86161(){}
@@ -83,7 +83,7 @@ bool MAXM86161::begin(){
     soft_reset();
     
     //1ms delay
-    Sleep(1);
+    //Sleep(1);
 
     //ppg configuration
     //pulse width = 123.8 ms
@@ -121,13 +121,13 @@ void MAXM86161::writeRegister(uint8_t address, uint8_t data){
     Wire.beginTransmission(MAXM86161_I2C_ADDRESS);
     Wire.write(address);
     Wire.write(data);
-    Wire.endTrasmission();
+    Wire.endTransmission();
 }
 //read data
 uint8_t MAXM86161::readRegister(uint8_t address){
     Wire.beginTransmission(MAXM86161_I2C_ADDRESS);
     Wire.write(address);
-    Wire.endTransimission(false);
+    Wire.endTransmission(false);
     Wire.requestFrom(MAXM86161_I2C_ADDRESS, 1);
     return Wire.read();
 }
