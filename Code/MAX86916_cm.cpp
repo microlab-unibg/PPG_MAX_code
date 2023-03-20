@@ -25,77 +25,50 @@ boolean MAX86916::begin() {
 }
 
 //Setup the sensor
-// Default settings:
-// Sample Average = 4
-// Mode = 3(all led)
-// Sample rate = 400
-// Pulse Width = 420
+
 // ADC Range = 16384 (31.25pA per LSB)
 void MAX86916::setup(uint8_t range, uint8_t powerLevel, uint8_t sampleAverage, byte ledMode, uint8_t sampleRate, uint8_t pulseWidth, uint8_t adcRange) {
-  softReset(); //Reset all configuration, threshold, and data registers
+  softReset(); //Reset 
 
   //FIFO Configuration
-  //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   setFIFOAverage(sampleAverage);
-  
-
-  //setFIFOAlmostFull(2); //Set to 30 samples to trigger an 'Almost Full' interrupt
-  enableFIFORollover(); //Allow FIFO to wrap/roll over
-  //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  enableFIFORollover(); //Allow FIFO to roll over
 
   //Mode Configuration
-  //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   if (ledMode == 3) setLEDMode(MAX86916_MODE_FLEXLED); //Watch all three LED channels
   else if (ledMode == 2) setLEDMode(MAX86916_MODE_REDIRONLY); //Red and IR
   else setLEDMode(MAX86916_MODE_IRONLY); //IR only
   if (ledMode < 3) activeLEDs = ledMode; //Used to control how many bytes to read from FIFO buffer
   else if(ledMode == 3) activeLEDs = 4;
   else activeLEDs = ledMode;
-  //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
 
   //Particle Sensing Configuration
   setADCRange(adcRange);
-
   setSampleRate(sampleRate);
-
-  //The longer the pulse width the longer range of detection you'll have
-  //At 70us and 0.4mA it's about 2 inches
-  //At 420us and 0.4mA it's about 6 inches
   setPulseWidth(pulseWidth);
-  //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
 
   //LED Pulse Amplitude Configuration
-  //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  //Default is range=0 powerLevel=0x1F which gets us 6.4mA
-  //range      = 0
-  //powerLevel = 0x02, 0.4mA - Presence detection of ~4 inch
-  //powerLevel = 0x1F, 6.4mA - Presence detection of ~8 inch
-  //powerLevel = 0x7F, 25.4mA - Presence detection of ~8 inch
-  //powerLevel = 0xFF, 50.0mA - Presence detection of ~12 inch
-
+  
   setAllLEDRange(range);
   setPA_IR(powerLevel);
   setPA_RED(powerLevel);
   setPA_GREEN(powerLevel);
   setPA_BLUE(powerLevel);
   setPA_PROX(powerLevel);
-  //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+ 
 
   //Flex-LED Mode Configuration, Enable the reading of the three LEDs
-  //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  
   enableSlot(1, SLOT_IR_LED);
   if (ledMode > 1) enableSlot(2, SLOT_RED_LED);
   if (ledMode > 2){
     enableSlot(3, SLOT_GREEN_LED);
     enableSlot(4, SLOT_BLUE_LED);
   }
-  //enableSlot(1, SLOT_IR_PILOT);
-  //enableSlot(2, SLOT_RED_PILOT);
-  //enableSlot(3, SLOT_GREEN_PILOT);
-  //enableSlot(4, SLOT_BLUE_PILOT);
-  //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-  clearFIFO(); //Reset the FIFO before we begin checking the sensor
+  
+  clearFIFO(); //Reset the FIFO
 }
 
 
@@ -151,43 +124,26 @@ void MAX86916::softReset() {
   }
 }
 
-void MAX86916::shutDown() {
-  // Put IC into low power mode (datasheet)
-  // During shutdown the IC will continue to respond to I2C commands but will
-  // not update with or take new readings (such as temperature)
-  mask(MAX86916_MODECONFIG, MAX86916_SHUTDOWN_MASK, MAX86916_SHUTDOWN);
-}
 
-void MAX86916::wakeUp() {
-  // Pull IC out of low power mode (datasheet)
-  mask(MAX86916_MODECONFIG, MAX86916_SHUTDOWN_MASK, MAX86916_WAKEUP);
-}
 
 void MAX86916::setLEDMode(uint8_t mode) {
-  // Set which LEDs are used for sampling -- IR only, RED+IR only, or FLEX.
-  // See datasheet
   mask(MAX86916_MODECONFIG, MAX86916_MODE_MASK, mode);
 }
 
 void MAX86916::setADCRange(uint8_t adcRange) {
-  // adcRange: one of MAX86916_ADCRANGE_4096, _8192, _16384, _32768
   mask(MAX86916_MODECONFIG2, MAX86916_ADCRANGE_MASK, adcRange);
 }
 
 void MAX86916::setSampleRate(uint8_t sampleRate) {
-  // sampleRate: one of MAX86916_SAMPLERATE_50, _100, _200, _400, _800, _1000, _1600, _3200
   mask(MAX86916_MODECONFIG2, MAX86916_SAMPLERATE_MASK, sampleRate);
 }
 
 void MAX86916::setPulseWidth(uint8_t pulseWidth) {
-  // pulseWidth: one of MAX86916_PULSEWIDTH_70, _120, _220, _420
   mask(MAX86916_MODECONFIG2, MAX86916_PULSEWIDTH_MASK, pulseWidth);
 }
 
 // See datasheet, page 30
 void MAX86916::setLEDRange(uint8_t rangeMask, uint8_t range) {
-  // rangeMask: one of MAX86916_LEDx_RGE_MASK
-  // range: one of MAX86916_LEDx_RGE_X1, _X2, _X3, _X4
   if(rangeMask      == MAX86916_LED1_RGE_MASK) mask(MAX86916_LED_RANGE, rangeMask, range);
   else if(rangeMask == MAX86916_LED2_RGE_MASK) mask(MAX86916_LED_RANGE, rangeMask, range << 2);
   else if(rangeMask == MAX86916_LED3_RGE_MASK) mask(MAX86916_LED_RANGE, rangeMask, range << 4);
@@ -196,14 +152,12 @@ void MAX86916::setLEDRange(uint8_t rangeMask, uint8_t range) {
 }
 
 void MAX86916::setAllLEDRange(uint8_t range){
-  // range: one of MAX86916_LEDx_RGE_X1, _X2, _X3, _X4
   setLEDRange(MAX86916_LED1_RGE_MASK, range);
   setLEDRange(MAX86916_LED2_RGE_MASK, range);
   setLEDRange(MAX86916_LED3_RGE_MASK, range);
   setLEDRange(MAX86916_LED4_RGE_MASK, range);
 }
 
-// NOTE: Amplitude values: 0x00 = 0mA, 0xFF = 50.4mA @ LEDX_RGE = 0x0, 0xFF = 201.6mA @ LEDX_RGE = 0x3
 void MAX86916::setPA_IR(uint8_t amplitude) {
   writeRegister(MAX86916_I2C_ADDRESS, MAX86916_LED1_PULSEAMP, amplitude);
 }
@@ -225,20 +179,11 @@ void MAX86916::setPA_PROX(uint8_t amplitude) {
 }
 
 void MAX86916::setProximityThreshold(uint8_t threshMSB) {
-  // Set the IR ADC count that will trigger the beginning of particle-sensing mode.
-  // The threshMSB signifies only the 8 most significant-bits of the ADC count.
-  // See datasheet, page 24.
   writeRegister(MAX86916_I2C_ADDRESS, MAX86916_PROXINTTHRESH, threshMSB);
 }
 
-//Given a slot number assign a data to it
-//Devices are SLOT_RED_LED or SLOT_RED_PILOT (proximity)
-//Assigning a SLOT_RED_LED will pulse LED
-//Assigning a SLOT_RED_PILOT will ??
+
 void MAX86916::enableSlot(uint8_t slotNumber, uint8_t device) {
-
-  
-
   switch (slotNumber) {
     case (1):
       mask(MAX86916_LED_SEQREG1, MAX86916_SLOT1_MASK, device);
@@ -258,23 +203,14 @@ void MAX86916::enableSlot(uint8_t slotNumber, uint8_t device) {
   }
 }
 
-//Clears all slot assignments
-void MAX86916::disableSlots() {
-  writeRegister(MAX86916_I2C_ADDRESS, MAX86916_LED_SEQREG1, 0);
-  writeRegister(MAX86916_I2C_ADDRESS, MAX86916_LED_SEQREG2, 0);
-}
 
-//
 // FIFO Configuration
 //
 
-//Set sample average (Table 3, Page 18)
 void MAX86916::setFIFOAverage(uint8_t numberOfSamples) {
   mask(MAX86916_FIFOCONFIG, MAX86916_SAMPLEAVG_MASK, numberOfSamples);
 }
 
-//Resets all points to start in a known state
-//Page 15 recommends clearing FIFO before beginning a read
 void MAX86916::clearFIFO() {
   writeRegister(MAX86916_I2C_ADDRESS, MAX86916_FIFO_WRITE_PTR, 0);
   writeRegister(MAX86916_I2C_ADDRESS, MAX86916_FIFO_OVERFLOW, 0);
@@ -286,17 +222,6 @@ void MAX86916::enableFIFORollover() {
   mask(MAX86916_FIFOCONFIG, MAX86916_ROLLOVER_MASK, MAX86916_ROLLOVER_ENABLE);
 }
 
-//Disable roll over if FIFO over flows
-void MAX86916::disableFIFORollover() {
-  mask(MAX86916_FIFOCONFIG, MAX86916_ROLLOVER_MASK, MAX86916_ROLLOVER_DISABLE);
-}
-
-//Set number of samples to trigger the almost full interrupt (Page 18)
-//Power on default is 32 samples
-//Note it is reverse: 0x00 is 32 samples, 0x0F is 17 samples
-void MAX86916::setFIFOAlmostFull(uint8_t numberOfSamples) {
-  mask(MAX86916_FIFOCONFIG, MAX86916_A_FULL_MASK, numberOfSamples);
-}
 
 //Read the FIFO Write Pointer
 uint8_t MAX86916::getWritePointer() {
@@ -313,9 +238,7 @@ void MAX86916::setPROXINTTHRESH(uint8_t val) {
   writeRegister(MAX86916_I2C_ADDRESS, MAX86916_PROXINTTHRESH, val);
 }
 
-//
-// Device ID and Revision
-//
+
 uint8_t MAX86916::read_Part_ID() {
   return readRegister(MAX86916_I2C_ADDRESS, MAX86916_PARTID);
 }
@@ -330,11 +253,7 @@ uint8_t MAX86916::getRevisionID() {
 
 
 
-//
-// Data Collection
-//
 
-//Tell caller how many samples are available
 uint8_t MAX86916::available()
 {
   int8_t numberOfSamples = sensor_data_buffer.head - sensor_data_buffer.tail;
@@ -383,29 +302,7 @@ uint32_t MAX86916::getBlue()
     return(0); //Sensor failed to find new data
 }
 
-//Report the next IR value in the FIFO
-uint32_t MAX86916::getFIFOIR()
-{
-  return (sensor_data_buffer.IR[sensor_data_buffer.tail]);
-}
 
-//Report the next Red value in the FIFO
-uint32_t MAX86916::getFIFORed()
-{
-  return (sensor_data_buffer.red[sensor_data_buffer.tail]);
-}
-
-//Report the next Green value in the FIFO
-uint32_t MAX86916::getFIFOGreen()
-{
-  return (sensor_data_buffer.green[sensor_data_buffer.tail]);
-}
-
-//Report the next Blue value in the FIFO
-uint32_t MAX86916::getFIFOBlue()
-{
-  return (sensor_data_buffer.blue[sensor_data_buffer.tail]);
-}
 
 //Advance the tail
 void MAX86916::nextSample()
@@ -417,21 +314,19 @@ void MAX86916::nextSample()
   }
 }
 
-//Polls the sensor for new data
-//Call regularly
+
 //If new data is available, it updates the head and tail in the main struct
 //Returns number of new samples obtained
 uint16_t MAX86916::check()
 {
-  //Read register FIFO_DATA in (3-byte * number of active LED) chunks
-  //Until FIFO_RD_PTR = FIFO_WR_PTR
+  
 
   byte readPointer = getReadPointer();
   byte writePointer = getWritePointer();
  
 	int numberOfSamples = 0;
-  //Do we have new data?
-  if (readPointer != writePointer) //if yes
+
+  if (readPointer != writePointer)
   {
     //Calculate the number of readings we need to get from sensor
     numberOfSamples = writePointer - readPointer;
@@ -561,7 +456,7 @@ bool MAX86916::safeCheck(uint8_t maxTimeToCheck)
   }
 }
 
-//Given a register, read it, mask it, and then set the data
+
 void MAX86916::mask(uint8_t reg, uint8_t mask, uint8_t data)
 {
   // Grab current register context
@@ -574,9 +469,7 @@ void MAX86916::mask(uint8_t reg, uint8_t mask, uint8_t data)
   writeRegister(MAX86916_I2C_ADDRESS, reg, originalContents | data);
 }
 
-//
-// Low-level I2C Communication
-//
+
 uint8_t MAX86916::readRegister(uint8_t address, uint8_t reg) {
   Wire.beginTransmission(address);
   Wire.write(reg);
