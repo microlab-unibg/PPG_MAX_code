@@ -7,9 +7,9 @@ This GitHub project contains a library for configuring registers and reading dat
 ## HR-Calculation
 
 ### Begin()
-### Setup of the sensor
-### Read FIFO
-### Get Current value
+### Setup()
+### Read FIFO()
+### Get Current value()
 ### Apply low pass filter
 ### Apply high pass filter
 ### Apply median filter
