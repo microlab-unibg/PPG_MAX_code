@@ -15,7 +15,13 @@ This GitHub project contains a library for configuring registers and reading dat
 - Calls the read_Revision_ID() function to read the revision ID from the MAX86916 sensor.
 - If everything is working correctly, the function returns true.
 ### Setup()
-
+- Calls the softReset() function to reset the sensor.
+- Configures the FIFO (First In First Out) buffer by calling the setFIFOAverage() function to set the sample average, and the enableFIFORollover() function to allow the FIFO to roll over.
+- Configures the LED mode by calling the setLEDMode() function with the specified ledMode parameter. The activeLEDs variable is set based on the ledMode parameter.
+- Configures the particle sensing by calling the setADCRange(), setSampleRate(), and setPulseWidth() functions with the specified parameters.
+- Configures the LED pulse amplitude by calling the setAllLEDRange() function with the specified range parameter, and the setPA_IR(), setPA_RED(), setPA_GREEN(), setPA_BLUE(), and setPA_PROX() functions with the specified powerLevel parameter.
+- Configures the Flex-LED mode by calling the enableSlot() function to enable the reading of the three LEDs, depending on the ledMode parameter.
+- Calls the clearFIFO() function to reset the FIFO buffer.
 ### Read FIFO()
 ### Get Current value()
 ### Apply low pass filter
