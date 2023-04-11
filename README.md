@@ -23,11 +23,20 @@ This GitHub project contains a library for configuring registers and reading dat
 - Configures the Flex-LED mode by calling the enableSlot() function to enable the reading of the three LEDs, depending on the ledMode parameter.
 - Calls the clearFIFO() function to reset the FIFO buffer.
 ### Read FIFO()
+- The function returns a 16-bit unsigned integer that represents the number of new data samples that were read from the sensor.
+- The function first reads the read and write pointers of the FIFO register to determine how much new data is available.
+- If there is new data available, the function calculates the number of samples to read and the number of bytes to request from the sensor.
+- The function then enters a loop where it repeatedly requests blocks of data from the sensor and stores the data in the buffer.
+- Within the loop, the function reads three bytes at a time (corresponding to the IR and Red channels) and converts them to 32-bit unsigned integers.
+- The function then applies a bit mask to zero out all but the 18 least significant bits of the integer, which are the meaningful data bits.
+- Finally, the function stores the converted integer values in the appropriate arrays within the buffer.
 ### Get Current value()
+This function is a method of a MAX86916 class that retrieves the most recent Green value from the sensor data buffer. It first calls the safeCheck() function, which checks the sensor for new data for 250ms and returns a boolean indicating whether new data was found. If new data is found, it returns the most recent Green value from the sensor_data_buffer array by accessing the array element at the current head index. If no new data is found, it returns 0 to indicate that the sensor failed to find new data. This function assumes that the sensor data buffer has been properly initialized and that the head index has been properly updated by the readFIFO() function.
 ### Apply low pass filter
 ### Apply high pass filter
 ### Apply median filter
 ### Apply butterworth filter
 ### Peak detection algorithm
+After the signal was filtered, the next step was to apply the peak detection algorithm to the filtered signal. This algorithm identified the peaks in the signal, which corresponded to the heartbeats.
 ### Calculate HR
-
+For each peak found, the time between the different peaks was calculated to determine the heart rate
