@@ -1,32 +1,49 @@
+/**
+
+@file MAX86916_cm.cpp
+@brief Implementation file for MAX86916 class.
+*/
 #include <Arduino.h>
 #include <Wire.h>
-
 #include "MAX86916_cm.h"
 
+/**
 
+@brief Constructor for the MAX86916 class.
+*/
+MAX86916::MAX86916() {}
+/**
 
-MAX86916::MAX86916() {  
-  // Constructor
-}
-
-
-//begin-> i2c configuration
+@brief Initializes the MAX86916 sensor by configuring the I2C communication and verifying its identity.
+@return Returns true if initialization was successful, false otherwise.
+*/
 boolean MAX86916::begin() {
-  Wire.begin();
-  Wire.setClock(I2C_SPEED_FAST);
-  // Check that a MAX86916 is connected. I read the value of the register 0xff 
-  //I check that this corrisponds to the expected value
-  if (read_Part_ID() != MAX86916_EXPECTED_PART_ID) {
-    // Error -- Part ID read from MAX86916 does not match expected part ID.
-    return false;
-  }
-  read_Revision_ID();
-  return true;
+// Start I2C communication.
+Wire.begin();
+Wire.setClock(I2C_SPEED_FAST);
+// Verify that a MAX86916 sensor is connected by checking its part ID and revision ID.
+if (read_Part_ID() != MAX86916_EXPECTED_PART_ID) {
+// Error -- Part ID read from MAX86916 does not match expected part ID.
+return false;
+}
+read_Revision_ID();
+
+return true;
 }
 
-//Setup the sensor
 
-// ADC Range = 16384 (31.25pA per LSB)
+/*
+
+@brief Sets up the MAX86916 sensor by configuring its parameters for particle sensing.
+@param range The ADC range (in LSB) for the sensor.
+@param powerLevel The LED pulse amplitude for the sensor.
+@param sampleAverage The number of samples to average in the FIFO buffer.
+@param ledMode The LED mode to use for the sensor (IR only, red and IR, all three LEDs).
+@param sampleRate The sample rate for the sensor.
+@param pulseWidth The pulse width for the LED.
+@param adcRange The ADC range for the sensor.
+*/
+
 void MAX86916::setup(uint8_t range, uint8_t powerLevel, uint8_t sampleAverage, byte ledMode, uint8_t sampleRate, uint8_t pulseWidth, uint8_t adcRange) {
   softReset(); //Reset 
 
@@ -71,79 +88,134 @@ void MAX86916::setup(uint8_t range, uint8_t powerLevel, uint8_t sampleAverage, b
   clearFIFO(); //Reset the FIFO
 }
 
-
+/**
+ * Performs a software reset on the MAX86916 sensor.
+ * Writes a specific value to the MODECONFIG register to trigger the reset,
+ * and then waits for the reset bit to be cleared, indicating that the reset is complete.
+ * Includes a timeout of 100 milliseconds to prevent an infinite loop.
+ */
 void MAX86916::softReset() {
   mask(MAX86916_MODECONFIG, MAX86916_RESET_MASK, MAX86916_RESET);
 
-  // Poll for bit to clear, reset is then complete
-  // Timeout after 100ms
+  // Wait for bit to clear, indicating reset is complete
   unsigned long startTime = millis();
   while (millis() - startTime < 100)
   {
     uint8_t response = readRegister(MAX86916_I2C_ADDRESS, MAX86916_MODECONFIG);
-    if ((response & MAX86916_RESET) == 0) break; //We're done!
-    delay(1); //Let's not over burden the I2C bus
+    if ((response & MAX86916_RESET) == 0) break; // reset is complete
+    delay(1); // don't overload I2C bus
   }
 }
 
+/**
 
-
+Set the LED mode for the MAX86916 sensor
+@param mode The LED mode to set
+*/
 void MAX86916::setLEDMode(uint8_t mode) {
-  mask(MAX86916_MODECONFIG, MAX86916_MODE_MASK, mode);
+mask(MAX86916_MODECONFIG, MAX86916_MODE_MASK, mode);
 }
+/**
 
+Set the ADC range for the MAX86916 sensor
+@param adcRange The ADC range to set
+*/
 void MAX86916::setADCRange(uint8_t adcRange) {
-  mask(MAX86916_MODECONFIG2, MAX86916_ADCRANGE_MASK, adcRange);
+mask(MAX86916_MODECONFIG2, MAX86916_ADCRANGE_MASK, adcRange);
 }
+/**
 
+Set the sample rate for the MAX86916 sensor
+@param sampleRate The sample rate to set
+*/
 void MAX86916::setSampleRate(uint8_t sampleRate) {
-  mask(MAX86916_MODECONFIG2, MAX86916_SAMPLERATE_MASK, sampleRate);
+mask(MAX86916_MODECONFIG2, MAX86916_SAMPLERATE_MASK, sampleRate);
 }
+/**
 
+Set the pulse width for the MAX86916 sensor
+@param pulseWidth The pulse width to set
+*/
 void MAX86916::setPulseWidth(uint8_t pulseWidth) {
-  mask(MAX86916_MODECONFIG2, MAX86916_PULSEWIDTH_MASK, pulseWidth);
+mask(MAX86916_MODECONFIG2, MAX86916_PULSEWIDTH_MASK, pulseWidth);
 }
 
-// See datasheet, page 30
+
+/**
+
+@brief Sets the LED range for a specific LED and updates the MAX86916_LED_RANGE register.
+@param rangeMask: The mask corresponding to the LED whose range is being set.
+@param range: The desired range value to set for the LED.
+@retval None
+*/
 void MAX86916::setLEDRange(uint8_t rangeMask, uint8_t range) {
-  if(rangeMask      == MAX86916_LED1_RGE_MASK) mask(MAX86916_LED_RANGE, rangeMask, range);
-  else if(rangeMask == MAX86916_LED2_RGE_MASK) mask(MAX86916_LED_RANGE, rangeMask, range << 2);
-  else if(rangeMask == MAX86916_LED3_RGE_MASK) mask(MAX86916_LED_RANGE, rangeMask, range << 4);
-  else if(rangeMask == MAX86916_LED4_RGE_MASK) mask(MAX86916_LED_RANGE, rangeMask, range << 6);
-  else mask(MAX86916_LED_RANGE, MAX86916_LED1_RGE_MASK, range);
+if(rangeMask == MAX86916_LED1_RGE_MASK) mask(MAX86916_LED_RANGE, rangeMask, range);
+else if(rangeMask == MAX86916_LED2_RGE_MASK) mask(MAX86916_LED_RANGE, rangeMask, range << 2);
+else if(rangeMask == MAX86916_LED3_RGE_MASK) mask(MAX86916_LED_RANGE, rangeMask, range << 4);
+else if(rangeMask == MAX86916_LED4_RGE_MASK) mask(MAX86916_LED_RANGE, rangeMask, range << 6);
+else mask(MAX86916_LED_RANGE, MAX86916_LED1_RGE_MASK, range);
 }
+/**
 
+@brief Sets the LED range for all four LEDs and updates the MAX86916_LED_RANGE register.
+@param range: The desired range value to set for all LEDs.
+@retval None
+*/
 void MAX86916::setAllLEDRange(uint8_t range){
-  setLEDRange(MAX86916_LED1_RGE_MASK, range);
-  setLEDRange(MAX86916_LED2_RGE_MASK, range);
-  setLEDRange(MAX86916_LED3_RGE_MASK, range);
-  setLEDRange(MAX86916_LED4_RGE_MASK, range);
+setLEDRange(MAX86916_LED1_RGE_MASK, range);
+setLEDRange(MAX86916_LED2_RGE_MASK, range);
+setLEDRange(MAX86916_LED3_RGE_MASK, range);
+setLEDRange(MAX86916_LED4_RGE_MASK, range);
 }
 
+/**
+
+Sets the amplitude of the IR pulse for the MAX86916's LED1.
+@param amplitude The amplitude to set for the IR pulse.
+*/
 void MAX86916::setPA_IR(uint8_t amplitude) {
-  writeRegister(MAX86916_I2C_ADDRESS, MAX86916_LED1_PULSEAMP, amplitude);
+writeRegister(MAX86916_I2C_ADDRESS, MAX86916_LED1_PULSEAMP, amplitude);
 }
+/**
 
+Sets the amplitude of the RED pulse for the MAX86916's LED2.
+@param amplitude The amplitude to set for the RED pulse.
+*/
 void MAX86916::setPA_RED(uint8_t amplitude) {
-  writeRegister(MAX86916_I2C_ADDRESS, MAX86916_LED2_PULSEAMP, amplitude);
+writeRegister(MAX86916_I2C_ADDRESS, MAX86916_LED2_PULSEAMP, amplitude);
 }
+/**
 
+Sets the amplitude of the GREEN pulse for the MAX86916's LED3.
+@param amplitude The amplitude to set for the GREEN pulse.
+*/
 void MAX86916::setPA_GREEN(uint8_t amplitude) {
-  writeRegister(MAX86916_I2C_ADDRESS, MAX86916_LED3_PULSEAMP, amplitude);
+writeRegister(MAX86916_I2C_ADDRESS, MAX86916_LED3_PULSEAMP, amplitude);
 }
+/**
 
+Sets the amplitude of the BLUE pulse for the MAX86916's LED4.
+@param amplitude The amplitude to set for the BLUE pulse.
+*/
 void MAX86916::setPA_BLUE(uint8_t amplitude) {
-  writeRegister(MAX86916_I2C_ADDRESS, MAX86916_LED4_PULSEAMP, amplitude);
+writeRegister(MAX86916_I2C_ADDRESS, MAX86916_LED4_PULSEAMP, amplitude);
 }
+/**
 
+Sets the amplitude of the proximity pulse for the MAX86916's LED_PROX.
+@param amplitude The amplitude to set for the proximity pulse.
+*/
 void MAX86916::setPA_PROX(uint8_t amplitude) {
-  writeRegister(MAX86916_I2C_ADDRESS, MAX86916_LED_PROX_AMP, amplitude);
+writeRegister(MAX86916_I2C_ADDRESS, MAX86916_LED_PROX_AMP, amplitude);
 }
+/**
 
+Sets the threshold for detecting a proximity event.
+@param threshMSB The threshold to set in the most significant byte.
+*/
 void MAX86916::setProximityThreshold(uint8_t threshMSB) {
-  writeRegister(MAX86916_I2C_ADDRESS, MAX86916_PROXINTTHRESH, threshMSB);
+writeRegister(MAX86916_I2C_ADDRESS, MAX86916_PROXINTTHRESH, threshMSB);
 }
-
 
 void MAX86916::enableSlot(uint8_t slotNumber, uint8_t device) {
   switch (slotNumber) {
