@@ -216,126 +216,177 @@ Sets the threshold for detecting a proximity event.
 void MAX86916::setProximityThreshold(uint8_t threshMSB) {
 writeRegister(MAX86916_I2C_ADDRESS, MAX86916_PROXINTTHRESH, threshMSB);
 }
+/**
 
+Enables a specific LED slot on the MAX86916 device.
+@param slotNumber The number of the slot to be enabled (1-4).
+@param device The device to be used for the slot (0-15).
+*/
 void MAX86916::enableSlot(uint8_t slotNumber, uint8_t device) {
-  switch (slotNumber) {
-    case (1):
-      mask(MAX86916_LED_SEQREG1, MAX86916_SLOT1_MASK, device);
-      break;
-    case (2):
-      mask(MAX86916_LED_SEQREG1, MAX86916_SLOT2_MASK, device << 4);
-      break;
-    case (3):
-      mask(MAX86916_LED_SEQREG2, MAX86916_SLOT3_MASK, device);
-      break;
-    case (4):
-      mask(MAX86916_LED_SEQREG2, MAX86916_SLOT4_MASK, device << 4);
-      break;
-    default:
-      //Shouldn't be here!
-      break;
-  }
+switch (slotNumber) {
+// If slotNumber is 1, set the corresponding bit in MAX86916_LED_SEQREG1 to enable the slot.
+case (1):
+mask(MAX86916_LED_SEQREG1, MAX86916_SLOT1_MASK, device);
+break;
+// If slotNumber is 2, set the corresponding bit in MAX86916_LED_SEQREG1 to enable the slot (shifted left by 4 bits).
+case (2):
+mask(MAX86916_LED_SEQREG1, MAX86916_SLOT2_MASK, device << 4);
+break;
+// If slotNumber is 3, set the corresponding bit in MAX86916_LED_SEQREG2 to enable the slot.
+case (3):
+mask(MAX86916_LED_SEQREG2, MAX86916_SLOT3_MASK, device);
+break;
+// If slotNumber is 4, set the corresponding bit in MAX86916_LED_SEQREG2 to enable the slot (shifted left by 4 bits).
+case (4):
+mask(MAX86916_LED_SEQREG2, MAX86916_SLOT4_MASK, device << 4);
+break;
+// If slotNumber is not within the range of 1-4, do nothing (this should not happen).
+default:
+//Shouldn't be here!
+break;
 }
-
+}
 
 // FIFO Configuration
 //
 
+/**
+
+Sets the number of samples to average in the FIFO on the MAX86916 device.
+@param numberOfSamples The number of samples to average (0-7).
+*/
 void MAX86916::setFIFOAverage(uint8_t numberOfSamples) {
-  mask(MAX86916_FIFOCONFIG, MAX86916_SAMPLEAVG_MASK, numberOfSamples);
+// Set the SAMPLEAVG bits in the FIFOCONFIG register to the specified number of samples.
+mask(MAX86916_FIFOCONFIG, MAX86916_SAMPLEAVG_MASK, numberOfSamples);
 }
+/**
 
+Clears the FIFO on the MAX86916 device.
+*/
 void MAX86916::clearFIFO() {
-  writeRegister(MAX86916_I2C_ADDRESS, MAX86916_FIFO_WRITE_PTR, 0);
-  writeRegister(MAX86916_I2C_ADDRESS, MAX86916_FIFO_OVERFLOW, 0);
-  writeRegister(MAX86916_I2C_ADDRESS, MAX86916_FIFO_READ_PTR, 0);
+// Set the FIFO write and read pointers to 0 and clear the overflow flag to clear the FIFO.
+writeRegister(MAX86916_I2C_ADDRESS, MAX86916_FIFO_WRITE_PTR, 0);
+writeRegister(MAX86916_I2C_ADDRESS, MAX86916_FIFO_OVERFLOW, 0);
+writeRegister(MAX86916_I2C_ADDRESS, MAX86916_FIFO_READ_PTR, 0);
 }
+/**
 
-//Enable roll over if FIFO over flows
+Enables FIFO rollover on the MAX86916 device.
+*/
 void MAX86916::enableFIFORollover() {
-  mask(MAX86916_FIFOCONFIG, MAX86916_ROLLOVER_MASK, MAX86916_ROLLOVER_ENABLE);
+// Enable FIFO rollover by setting the ROLLOVER bit in the FIFOCONFIG register.
+mask(MAX86916_FIFOCONFIG, MAX86916_ROLLOVER_MASK, MAX86916_ROLLOVER_ENABLE);
 }
 
+/**
 
-//Read the FIFO Write Pointer
+Returns the current FIFO write pointer value on the MAX86916 device.
+@return The current FIFO write pointer value.
+*/
 uint8_t MAX86916::getWritePointer() {
-  return (readRegister(MAX86916_I2C_ADDRESS, MAX86916_FIFO_WRITE_PTR));
+// Read the FIFO write pointer from the MAX86916 device and return its value.
+return (readRegister(MAX86916_I2C_ADDRESS, MAX86916_FIFO_WRITE_PTR));
 }
+/**
 
-//Read the FIFO Read Pointer
+Returns the current FIFO read pointer value on the MAX86916 device.
+@return The current FIFO read pointer value.
+*/
 uint8_t MAX86916::getReadPointer() {
-  return (readRegister(MAX86916_I2C_ADDRESS, MAX86916_FIFO_READ_PTR));
+// Read the FIFO read pointer from the MAX86916 device and return its value.
+return (readRegister(MAX86916_I2C_ADDRESS, MAX86916_FIFO_READ_PTR));
 }
+/**
 
-// Set the PROX_INT_THRESHold
+Sets the proximity interrupt threshold on the MAX86916 device.
+@param val The value to set the proximity interrupt threshold to.
+*/
 void MAX86916::setPROXINTTHRESH(uint8_t val) {
-  writeRegister(MAX86916_I2C_ADDRESS, MAX86916_PROXINTTHRESH, val);
+// Write the specified value to the PROXINTTHRESH register on the MAX86916 device.
+writeRegister(MAX86916_I2C_ADDRESS, MAX86916_PROXINTTHRESH, val);
 }
+/**
 
-
+Reads and returns the part ID register value on the MAX86916 device.
+@return The part ID register value.
+*/
 uint8_t MAX86916::read_Part_ID() {
-  return readRegister(MAX86916_I2C_ADDRESS, MAX86916_PARTID);
+// Read and return the value of the PARTID register on the MAX86916 device.
+return readRegister(MAX86916_I2C_ADDRESS, MAX86916_PARTID);
 }
+/**
 
+Reads the revision ID register on the MAX86916 device and stores the value in the revisionID class member variable.
+*/
 void MAX86916::read_Revision_ID() {
-  revisionID = readRegister(MAX86916_I2C_ADDRESS, MAX86916_REVISIONID);
+// Read the value of the REVISIONID register on the MAX86916 device and store it in the revisionID member variable.
+revisionID = readRegister(MAX86916_I2C_ADDRESS, MAX86916_REVISIONID);
 }
 
+/**
+
+Returns the revision ID of the MAX86916 sensor.
+@return The revision ID of the MAX86916 sensor.
+*/
 uint8_t MAX86916::getRevisionID() {
-  return revisionID;
+return revisionID;
 }
+/**
 
-
-
-
+Returns the number of available samples in the data buffer.
+@return The number of available samples in the data buffer.
+*/
 uint8_t MAX86916::available()
 {
-  int8_t numberOfSamples = sensor_data_buffer.head - sensor_data_buffer.tail;
-  if (numberOfSamples < 0) numberOfSamples += STORAGE_SIZE;
-
-  return (numberOfSamples);
+int8_t numberOfSamples = sensor_data_buffer.head - sensor_data_buffer.tail;
+if (numberOfSamples < 0) numberOfSamples += STORAGE_SIZE;
+return (numberOfSamples);
 }
 
-//Report the most recent IR value
+/**
+
+Returns the most recent IR value from the MAX86916 sensor.
+@return The most recent IR value from the MAX86916 sensor. Returns 0 if no new data is available.
+*/
 uint32_t MAX86916::getIR()
 {
-  //Check the sensor for new data for 250ms
-  if(safeCheck(250))
-    return (sensor_data_buffer.IR[sensor_data_buffer.head]);
-  else
-    return(0); //Sensor failed to find new data
+//Check the sensor for new data for 250ms
+if(safeCheck(250))
+return (sensor_data_buffer.IR[sensor_data_buffer.head]);
+else
+return(0); //Sensor failed to find new data
 }
+
 
 //Report the most recent red value
 uint32_t MAX86916::getRed()
 {
-  //Check the sensor for new data for 250ms
-  if(safeCheck(250))
-    return (sensor_data_buffer.red[sensor_data_buffer.head]);
-  else
-    return(0); //Sensor failed to find new data
+//Check the sensor for new data for 250ms
+if(safeCheck(250))
+return (sensor_data_buffer.red[sensor_data_buffer.head]);
+else
+return(0); //Sensor failed to find new data
 }
 
 //Report the most recent Green value
 uint32_t MAX86916::getGreen()
 {
-  //Check the sensor for new data for 250ms
-  if(safeCheck(250))
-    return (sensor_data_buffer.green[sensor_data_buffer.head]);
-  else
-    return(0); //Sensor failed to find new data
+//Check the sensor for new data for 250ms
+if(safeCheck(250))
+return (sensor_data_buffer.green[sensor_data_buffer.head]);
+else
+return(0); //Sensor failed to find new data
 }
 
 //Report the most recent Blue value
 uint32_t MAX86916::getBlue()
 {
-  //Check the sensor for new data for 250ms
-  if(safeCheck(250))
-    return (sensor_data_buffer.blue[sensor_data_buffer.head]);
-  else
-    return(0); //Sensor failed to find new data
+//Check the sensor for new data for 250ms
+if(safeCheck(250))
+return (sensor_data_buffer.blue[sensor_data_buffer.head]);
+else
+return(0); //Sensor failed to find new data
 }
-
 
 
 //Advance the tail
@@ -348,9 +399,11 @@ void MAX86916::nextSample()
   }
 }
 
-
-//If new data is available, it updates the head and tail in the main struct
-//Returns number of new samples obtained
+/**
+ * @brief Updates the head and tail pointers in the main struct if new data is available and returns the number of new samples obtained.
+ * 
+ * @return uint16_t The number of new samples obtained.
+ */
 uint16_t MAX86916::check()
 {
   
@@ -472,9 +525,12 @@ uint16_t MAX86916::check()
   return (numberOfSamples); //Let the world know how much new data we found
 }
 
-//Check for new data but give up after a certain amount of time
-//Returns true if new data was found
-//Returns false if new data was not found
+/**
+
+Check for new data from the MAX86916 sensor within a specified time period
+@param maxTimeToCheck Maximum time to spend checking for new data in milliseconds
+@return true if new data was found, false if new data was not found within the specified time
+*/
 bool MAX86916::safeCheck(uint8_t maxTimeToCheck)
 {
   uint32_t markTime = millis();
@@ -490,82 +546,97 @@ bool MAX86916::safeCheck(uint8_t maxTimeToCheck)
   }
 }
 
-
+// This function masks a specific register of the MAX86916 sensor
+// by performing a bitwise AND with the provided mask and the current register value,
+// then OR-ing with the provided data to set the masked bits to the desired value
+// Inputs:
+// - reg: the register to modify
+// - mask: the bit mask to apply to the register
+// - data: the data to write to the masked bits of the register
 void MAX86916::mask(uint8_t reg, uint8_t mask, uint8_t data)
 {
-  // Grab current register context
-  uint8_t originalContents = readRegister(MAX86916_I2C_ADDRESS, reg);
+// Read the current value of the register
+uint8_t originalContents = readRegister(MAX86916_I2C_ADDRESS, reg);
 
-  // Zero-out the portions of the register we're interested in
-  originalContents = originalContents & mask;
+// Mask the relevant bits of the register
+originalContents &= mask;
 
-  // Change contents
-  writeRegister(MAX86916_I2C_ADDRESS, reg, originalContents | data);
+// Update the masked bits with the desired data
+writeRegister(MAX86916_I2C_ADDRESS, reg, originalContents | data);
 }
 
-
+// This function reads the value of a specific register from the MAX86916 sensor
+// Inputs:
+// - address: the I2C address of the MAX86916 sensor
+// - reg: the register to read
+// Returns:
+// - The value of the specified register
+// - If reading the register fails, returns 0
 uint8_t MAX86916::readRegister(uint8_t address, uint8_t reg) {
-  Wire.beginTransmission(address);
-  Wire.write(reg);
-  Wire.endTransmission(false);
+// Begin an I2C transmission to the specified address
+Wire.beginTransmission(address);
+// Write the register address to be read
+Wire.write(reg);
+// End the transmission but leave the bus active for a repeated start
+Wire.endTransmission(false);
 
-  Wire.requestFrom((uint8_t)address, (uint8_t)1); // Request 1 byte
-  if (Wire.available())
-  {
-    return(Wire.read());
-  }
-
-  return (0); //Fail
-
+// Request 1 byte of data from the register
+Wire.requestFrom((uint8_t)address, (uint8_t)1);
+// If the requested data is available, return it
+if (Wire.available())
+{
+return(Wire.read());
 }
 
+// If the requested data is not available, return 0 to indicate failure
+return (0);
+}
+
+// This function writes a value to a specific register on the MAX86916 sensor
+// Inputs:
+// - address: the I2C address of the MAX86916 sensor
+// - reg: the register to write
+// - value: the value to write to the specified register
 void MAX86916::writeRegister(uint8_t address, uint8_t reg, uint8_t value) {
-  Wire.beginTransmission(address);
-  Wire.write(reg);
-  Wire.write(value);
-  Wire.endTransmission();
+// Begin an I2C transmission to the specified address
+Wire.beginTransmission(address);
+// Write the register address to be written to
+Wire.write(reg);
+// Write the value to be written to the specified register
+Wire.write(value);
+// End the I2C transmission
+Wire.endTransmission();
 }
 
-
-
-//Read Overflow counter register
+// Get the value of the overflow counter register
 uint8_t MAX86916::getOverflowCounter() {
-  return (readRegister(MAX86916_I2C_ADDRESS, MAX86916_FIFO_OVERFLOW));
+return (readRegister(MAX86916_I2C_ADDRESS, MAX86916_FIFO_OVERFLOW));
 }
-  
-  
 
-
-
+// Get the number of samples in the FIFO buffer
 uint16_t MAX86916::nr_sample_FIFO()
 {
-  //Read register FIFO_DATA in (3-byte * number of active LED) chunks
-  //Until FIFO_RD_PTR = FIFO_WR_PTR
+byte readPointer = getReadPointer();
+byte writePointer = getWritePointer();
+byte overflowCounter = getOverflowCounter();
+int numberOfSamples = 0;
 
-  byte readPointer = getReadPointer();
-  byte writePointer = getWritePointer();
-  byte overflowCounter= getOverflowCounter();
-  int numberOfSamples = 0;
-  
-  //Do we have new data?
-  if (overflowCounter==0)  //no overflow has occured
-  {
-  	if (writePointer> readPointer)
-  	{
-  		numberOfSamples = writePointer - readPointer;
-	}
-    else
-	{
-    	numberOfSamples = writePointer - readPointer+32;
-	}
-  }
-  else 
-  {
-  	numberOfSamples=32;
-  }
-  
-  return (numberOfSamples);
+// Check if new data is available
+if (overflowCounter == 0) // No overflow has occurred
+{
+if (writePointer > readPointer)
+{
+numberOfSamples = writePointer - readPointer;
+}
+else
+{
+numberOfSamples = writePointer - readPointer + 32;
+}
+}
+else
+{
+numberOfSamples = 32;
+}
 
-
-
+return (numberOfSamples);
 }
