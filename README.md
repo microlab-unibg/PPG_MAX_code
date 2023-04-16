@@ -18,14 +18,14 @@ This GitHub project contains a library for configuring registers and reading dat
 - Configures the LED mode by calling the setLEDMode() function with the specified ledMode parameter. The activeLEDs variable is set based on the ledMode parameter.
 - Configures the particle sensing by calling the setADCRange(), setSampleRate(), and setPulseWidth() functions with the specified parameters.
 - Configures the LED pulse amplitude by calling the setAllLEDRange() function with the specified range parameter, and the setPA_IR(), setPA_RED(), setPA_GREEN(), setPA_BLUE(), and setPA_PROX() functions with the specified powerLevel parameter.
-- Configures the Flex-LED mode by calling the enableSlot() function to enable the reading of the three LEDs, depending on the ledMode parameter.
+- Configures the Flex-LED mode by calling the enableSlot() function to enable the reading of the LEDs, depending on the ledMode parameter.
 - Calls the clearFIFO() function to reset the FIFO buffer.
 ### Read FIFO()
 - The function returns a 16-bit unsigned integer that represents the number of new data samples that were read from the sensor.
 - The function first reads the read and write pointers of the FIFO register to determine how much new data is available.
 - If there is new data available, the function calculates the number of samples to read and the number of bytes to request from the sensor.
 - The function then enters a loop where it repeatedly requests blocks of data from the sensor and stores the data in the buffer.
-- Within the loop, the function reads three bytes at a time (corresponding to the IR and Red channels) and converts them to 32-bit unsigned integers.
+- Within the loop, the function reads three bytes at a time and converts them to 32-bit unsigned integers.
 - The function then applies a bit mask to zero out all but the 18 least significant bits of the integer, which are the meaningful data bits.
 - Finally, the function stores the converted integer values in the appropriate arrays within the buffer.
 ### Get Current value()
