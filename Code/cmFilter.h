@@ -67,4 +67,4 @@ class DigitalFilter {
 
 
 
-#endif /* ECG_ALGORITHM_H_ */
+#endif 
