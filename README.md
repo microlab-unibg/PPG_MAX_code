@@ -30,10 +30,10 @@ This GitHub project contains a library for configuring registers and reading dat
 - Finally, the function stores the converted integer values in the appropriate arrays within the buffer.
 ### Get Current value()
 This function is a method of a MAX86916 class that retrieves the most recent Green value from the sensor data buffer. It first calls the safeCheck() function, which checks the sensor for new data for 250ms and returns a boolean indicating whether new data was found. If new data is found, it returns the most recent Green value from the sensor_data_buffer array by accessing the array element at the current head index. If no new data is found, it returns 0 to indicate that the sensor failed to find new data. This function assumes that the sensor data buffer has been properly initialized and that the head index has been properly updated by the readFIFO() function.
-### Apply low pass filter
-### Apply high pass filter
-### Apply median filter
-### Apply butterworth filter
+### Apply low passfilter()
+### Apply removeDC()
+### Apply medianfilter()
+### Apply butterworthfilter()
 ### Peak detection algorithm
 After the signal was filtered, the next step was to apply the peak detection algorithm to the filtered signal. This algorithm identified the peaks in the signal, which corresponded to the heartbeats.
 ### Calculate HR
