@@ -5,7 +5,7 @@
 
 #define NZEROS 4
 #define NPOLES 4
-#define GAIN3.775352055e+02
+#define GAIN 3.775352055e+02
 static double xv[NZEROS + 1], yv[NPOLES + 1];
 
 /**
